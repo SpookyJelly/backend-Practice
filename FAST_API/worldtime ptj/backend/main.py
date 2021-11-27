@@ -1,9 +1,26 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+# CORS 설정을 위한 미들웨어
+from fastapi.middleware.cors import CORSMiddleware
 import requests
 
+# python dict는 키값에도  NUMBER가 들어갈 수 있기 때문에, 키에도 ""처리를 해줘서 string을 해줘야한다.
 
 app = FastAPI()
+
+origins = [
+    'http://localhost:3000',
+    'http://localhost'
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 db = []
 
