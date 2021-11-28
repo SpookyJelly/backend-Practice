@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
-import axios, { AxiosRequestConfig } from "axios";
+import axios, { AxiosResponse } from "axios";
+
+type CityTimeType = {
+  name: string;
+  timezone: string;
+  current_time?: string;
+  index: number;
+};
 
 /*
 HTTP 요청은 기본적으로 Cross-site HTTP Request가 적용되나,
@@ -23,21 +30,123 @@ const testAPI = async () => {
   //   },
   // };
   // const res = await axios.get(url, config);
-  const res = await axios.get(url);
+  const res: AxiosResponse<Array<CityTimeType>> = await axios.get(url);
 
-  console.log(res);
-};
-
-const handleFetch = (e: React.MouseEvent<HTMLButtonElement>) => {
-  console.log(e);
-  testAPI();
+  return res;
 };
 
 function App() {
+  const [cityTimeList, setCityTimeList] = useState([{}] as Array<CityTimeType>);
+  const [cityName, setCityName] = useState("");
+  const [cityTimezone, setCityTimezone] = useState("");
+  useEffect(() => {
+    const init = async () => {
+      const cityTime = await testAPI();
+      console.log("cityTime", cityTime);
+      if (cityTime.data.length > 0) {
+        setCityTimeList([...cityTime.data]);
+        console.log("city List", cityTimeList);
+      }
+    };
+    // setInterval(() => init(), 1000);
+    init();
+  }, []);
+
+  const handleFetch = async () => {
+    try {
+      const res = await testAPI();
+      setCityTimeList([...res.data]);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const handleType = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e);
+    if (e.target.name === "cityName") {
+      setCityName(e.target.value);
+    } else if (e.target.name === "cityTimezone") {
+      setCityTimezone(e.target.value);
+    }
+  };
+
+  const handleSubmit = async () => {
+    if (cityName && cityTimezone) {
+      const url = "http://localhost:8000/cities";
+      const data = {
+        name: cityName,
+        timezone: cityTimezone,
+      };
+      const res = await axios.post(url, data);
+      console.log(res);
+      handleFetch();
+    } else {
+      alert("TimeZone과 Name 모두를 입력해주세요");
+    }
+  };
+
+  const handleDelete = async (index: number) => {
+    console.log("index", index);
+    const url = `http://localhost:8000/city/${index}`;
+    try {
+      const res = await axios.delete(url);
+      console.log(res);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const cityList = cityTimeList.map((city) => {
+    if (city) {
+      return (
+        <li key={city.index}>
+          <p>도시 이름 : {city.name}</p>
+          <p>시간역 : {city.timezone}</p>
+          <p>현재 시각 : {city.current_time}</p>
+          <button onClick={() => handleDelete(city.index)}>삭제하기</button>
+        </li>
+      );
+    } else {
+      return null;
+    }
+  });
   return (
     <div className="App">
       <h1>각 나라의 시간들</h1>
-      <button onClick={handleFetch}>시간 가져오기</button>
+      <button onClick={handleFetch}>목록 최신화</button>
+      <hr />
+      <div>
+        <input
+          placeholder="Type TimeZone "
+          value={cityTimezone}
+          name="cityTimezone"
+          onChange={handleType}
+        />
+        <input
+          placeholder="Type Name"
+          value={cityName}
+          name="cityName"
+          onChange={handleType}
+        />
+        <button onClick={handleSubmit}>Submit </button>
+      </div>
+      <div>
+        <ul>{cityList}</ul>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <td>테이블 제목</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>목차 1</td>
+            <td>목차 2</td>
+            <td>목차 3</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 }
