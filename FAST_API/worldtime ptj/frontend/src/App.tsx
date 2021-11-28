@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import axios, { AxiosResponse } from "axios";
+import { serverURL } from "./config/constant";
 
 type CityTimeType = {
   name: string;
@@ -21,7 +22,8 @@ HTTP 요청은 기본적으로 Cross-site HTTP Request가 적용되나,
 
  */
 const testAPI = async () => {
-  const url = "http://localhost:8000/cities";
+  // const url = "http://localhost:8000/cities";
+  const url = `${serverURL}/cities`;
   // 결국 config 는 여기서 필요가 없었구나
   // const config: AxiosRequestConfig = {
   //   headers: {
@@ -42,7 +44,7 @@ function App() {
   useEffect(() => {
     const init = async () => {
       const cityTime = await testAPI();
-      console.log("cityTime", cityTime);
+      // console.log("cityTime", cityTime);
       if (cityTime.data.length > 0) {
         setCityTimeList([...cityTime.data]);
         console.log("city List", cityTimeList);
@@ -72,7 +74,7 @@ function App() {
 
   const handleSubmit = async () => {
     if (cityName && cityTimezone) {
-      const url = "http://localhost:8000/cities";
+      const url = `${serverURL}/cities`;
       const data = {
         name: cityName,
         timezone: cityTimezone,
@@ -87,7 +89,8 @@ function App() {
 
   const handleDelete = async (index: number) => {
     console.log("index", index);
-    const url = `http://localhost:8000/city/${index}`;
+    // const url = `http://localhost:8000/city/${index}`;
+    const url = `${serverURL}/city/${index}`;
     try {
       const res = await axios.delete(url);
       console.log(res);
@@ -133,20 +136,6 @@ function App() {
       <div>
         <ul>{cityList}</ul>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <td>테이블 제목</td>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>목차 1</td>
-            <td>목차 2</td>
-            <td>목차 3</td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   );
 }
