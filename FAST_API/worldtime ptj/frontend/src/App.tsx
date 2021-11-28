@@ -99,10 +99,10 @@ function App() {
     }
   };
 
-  const cityList = cityTimeList.map((city) => {
+  const cityList = cityTimeList.map((city, index) => {
     if (city) {
       return (
-        <li key={city.index}>
+        <li key={index}>
           <p>도시 이름 : {city.name}</p>
           <p>시간역 : {city.timezone}</p>
           <p>현재 시각 : {city.current_time}</p>
