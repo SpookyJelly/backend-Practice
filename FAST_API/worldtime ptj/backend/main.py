@@ -37,6 +37,11 @@ class City(BaseModel):
     name: str  # Seoul
     timezone: str  # Asia/Seoul
 
+class CityModify(BaseModel):
+    id:int
+    name:str
+    timezone:str
+
 
 @app.get('/cities')
 def get_cities():
@@ -46,7 +51,7 @@ def get_cities():
         r = requests.get(url)
         cur_time = r.json()['datetime']
         results.append({'name': city['name'], 'timezone': city['timezone'],
-                       'current_time': cur_time, 'index': len(results)})
+        'current_time': cur_time, 'index': len(results)})
 
     return results
 
@@ -65,6 +70,11 @@ def get_city(city_id: int):
 def create_city(city: City):
     db.append(city.dict())
     return db[-1]
+
+@app.put('/cities')
+def update_city(city:CityModify):
+    db[city.id] = {'name':city.name, 'timezone':city.timezone}
+    return db[city.id]
 
 
 @app.delete('/city/{city_id}')
